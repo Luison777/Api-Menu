@@ -1,4 +1,5 @@
 var express = require('express');
+const { dishesRequest,} = require('../db/request');
 var router = express.Router();
 const dishes=[{
   dish: "Chocolate Lava Cake",
@@ -20,9 +21,14 @@ const dishes=[{
 }
  ]
 
-/* GET users listing. */
+
 router.get('/', function(req, res, next) {
-  res.json(dishes);
+  dishesRequest('appetizers',(err,dishes)=>{
+    if(err){
+      return next(err);
+    }
+    res.send(dishes);
+  });
 });
 
 router.post('/', function(req, res, next) {
