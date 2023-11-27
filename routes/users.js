@@ -1,29 +1,10 @@
 var express = require('express');
-const { dishesRequest,} = require('../db/request');
+const { dishesRequest, dishCreate, dishUpdate, dishDelete} = require('../db/request');
 var router = express.Router();
-const dishes=[{
-  dish: "Chocolate Lava Cake",
-  ingredients: "Chocolate, butter, sugar, eggs, flour",
-  price: "$8.99",
-  src: "dessert1.jpg"
-},
-{
-  dish: "Classic New York Cheesecake",
-  ingredients: "Cream cheese, graham cracker crust, vanilla",
-  price: "$9.49",
-  src: "dessert2.jpg"
-},
-{
-  dish: "Mixed Berry Parfait",
-  ingredients: "Berries, yogurt, granola, honey",
-  price: "$7.99",
-  src: "dessert3.webp"
-}
- ]
 
-
-router.get('/', function(req, res, next) {
-  dishesRequest('appetizers',(err,dishes)=>{
+router.get('/:tableName', function(req, res, next) {
+  const tableName = req.params.tableName;
+  dishesRequest(tableName,(err,dishes)=>{
     if(err){
       return next(err);
     }
@@ -31,31 +12,40 @@ router.get('/', function(req, res, next) {
   });
 });
 
-router.post('/', function(req, res, next) {
-  const newDish = req.body; // Assuming the new dish data is sent in the request body
-  dishes.push(newDish);
-  res.status(201).json({ message: 'Dish added successfully', newDish });
+router.post('/:tableName', function(req, res, next) {
+  const tableName = req.params.tableName;
+  const newDish = req.body; 
+  dishCreate(tableName,newDish,(err,dishes)=>{
+    if(err){
+      return next(err);
+    }
+    res.send(dishes);
+  });
 });
 
-router.put('/:index', function(req, res, next) {
+router.put('/:nombre_tabla/:index', function(req, res, next) {
+  const nombreTabla = req.params.nombre_tabla; 
   const index = req.params.index;
-  const updatedDish = req.body; // Assuming the updated dish data is sent in the request body
-  if (index >= 0 && index < dishes.length) {
-    dishes[index] = updatedDish;
-    res.json({ message: 'Dish updated successfully', updatedDish });
-  } else {
-    res.status(404).json({ message: 'Dish not found' });
-  }
-});
+  const updatedDish = req.body; 
+
+      dishUpdate(nombreTabla,index,updatedDish,(err,actualizada)=>{
+        if(err){
+          return next(err);
+        }
+        res.send(actualizada);
+      });
+    });
+
+
 
 router.delete('/:index', function(req, res, next) {
   const index = req.params.index;
-  if (index >= 0 && index < dishes.length) {
-    const deletedDish = dishes.splice(index, 1);
-    res.json({ message: 'Dish deleted successfully', deletedDish });
-  } else {
-    res.status(404).json({ message: 'Dish not found' });
-  }
+  dishDelete('appetizers',index,(err,deleted)=>{
+    if(err){
+      return next(err);
+    }
+    res.send(deleted);
+  });
 });
 
 module.exports = router;
