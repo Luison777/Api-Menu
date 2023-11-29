@@ -38,13 +38,14 @@ router.put('/:nombre_tabla/:index', function(req, res, next) {
 
 
 
-router.delete('/:index', function(req, res, next) {
+router.delete('/:nombre_tabla/:index', function(req, res, next) {
+  const nombreTabla = req.params.nombre_tabla; 
   const index = req.params.index;
-  dishDelete('appetizers',index,(err,deleted)=>{
+  dishDelete(nombreTabla,index,(err,deleted)=>{
     if(err){
       return next(err);
     }
-    res.send(deleted);
+    res.send('dish deleted');
   });
 });
 
