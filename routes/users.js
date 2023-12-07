@@ -76,16 +76,32 @@ router.put('/:tableName/:index', upload.single('src'), function (req, res, next)
   });
 });
 
-
-
-router.delete('/:nombre_tabla/:index', function(req, res, next) {
+router.delete('/:nombre_tabla/:index/:file', function(req, res, next) {
+  const fileToDelete=req.params.file;
   const nombreTabla = req.params.nombre_tabla; 
   const index = req.params.index;
-  dishDelete(nombreTabla,index,(err,deleted)=>{
-    if(err){
-      return next(err);
+  const filePath = path.join(__dirname,'..', 'public', 'images', fileToDelete);
+  
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).send('El archivo no existe'+ filePath);
     }
-    res.send(deleted);
+
+    // Eliminar el archivo
+    fs.unlink(filePath, (unlinkErr) => {
+      if (unlinkErr) {
+        return next(unlinkErr);
+      }
+      
+      dishDelete(nombreTabla,index,(err,deleted)=>{
+        if(err){
+          return next(err);
+        }
+        res.send(deleted);
+      });
+
+      res.send('Archivo eliminado correctamente');
+    });
   });
 });
 
