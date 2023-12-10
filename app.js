@@ -7,6 +7,7 @@ var logger = require('morgan');
 var router = express.Router();
 
 var usersRouter = require('./routes/users');
+var sectionsRouter= require('./routes/sections');
 
 
 const corsOptions = {
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/sections',sectionsRouter);
 app.use('/', usersRouter);
 
 // catch 404 and forward to error handler
