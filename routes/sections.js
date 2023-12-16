@@ -1,8 +1,8 @@
 var express = require('express');
-const {  createSubsection, createSection, updateSubsection, updateSection} = require('../db/request');
+const {  createSubsection, createSection, updateSubsection, updateSection, deleteSubsection, deleteSection} = require('../db/request');
 var router = express.Router();
 
-router.post('/:id/subsection', async function(req, res, next) {
+router.post('/subsection/:id', async function(req, res, next) {
     const id = req.params.id;
     const value = req.body.value;
     const subsections = req.body.subsections;
@@ -20,8 +20,7 @@ router.post('/:id/subsection', async function(req, res, next) {
         }
     });
 });
-
-router.post('/newsection', async function(req, res, next) {
+router.post('/section', async function(req, res, next) {
     const value = req.body.value;
     const subsections = req.body.subsections;
     const name= req.body.name;
@@ -39,7 +38,6 @@ router.post('/newsection', async function(req, res, next) {
         }
     });
 });
-
 router.put('/subsection/:id', async function(req, res, next) {
     const id=req.params.id;
     const value = req.body.value;
@@ -60,7 +58,6 @@ router.put('/subsection/:id', async function(req, res, next) {
         }
     });
 });
-
 router.put('/section/:id', async function(req, res, next) {
     const id=req.params.id;
     const value = req.body.value;
@@ -82,5 +79,38 @@ router.put('/section/:id', async function(req, res, next) {
         }
     });
 });
+router.delete('/section/:id/:name', async function(req, res, next) {
+    const id = req.params.id;
+    const name = req.params.name;
+
+    deleteSection(id, name, (err, resultado) => {
+        if (err) {
+            next(err);
+        } else {
+            res.send({ eliminada: resultado });
+        }
+    });
+});
+router.delete('/subsection/:id', async function(req, res, next) {
+    const id=req.params.id;
+    const value = req.body.value;
+    const subsections = req.body.subsections;
+    const name= req.body.name;
+
+
+    const newSubsections = {
+        value: value,
+        subsections: subsections
+    };
+
+    deleteSubsection(id,newSubsections,name, (err, resultado) => {
+        if (err) {
+            next(err);
+        } else {
+            res.send({ actualizada: resultado });
+        }
+    });
+});
+
 
 module.exports = router;

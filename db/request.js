@@ -62,7 +62,7 @@ async function createSubsection(subtabla, id, item, callback) {
                 );`);
                 callback(null, resultadoActualizacion);
             } else {
-                throw new Error('La actualización no fue exitosa.');
+                throw new Error('La seccion no se pudo crear con exito.');
             }
         });
     } catch (error) {
@@ -90,7 +90,7 @@ async function createSection( item,sectionTable, callback) {
                 );`);
                 callback(null, resultadoActualizacion);
             } else {
-                throw new Error('La actualización no fue exitosa.');
+                throw new Error('La seccion no se pudo crear con exito.');
             }
         });
     } catch (error) {
@@ -129,6 +129,38 @@ async function updateSection(item,id,table,newTableName,callback){
         })
     }catch(error){callback(error);}
 }
+async function deleteSubsection(id,item,subtable,callback){
+    try{
+        await db.tx(async(t)=>{
+            const keys=Object.keys(item);
+            const actualizaciones= keys.map(key=> `${key}='${item[key]}'`).join(', ');
+            const sql=`UPDATE sections set ${actualizaciones} WHERE id=${id} returning *`;
+            const resultadoActualizacion = await t.oneOrNone(sql);
+            if(resultadoActualizacion){
+                await t.none(`DROP TABLE ${subtable}`);
+                callback(null, resultadoActualizacion);
+            } else {
+                throw new Error('La subseccion no pudo ser eliminada.');
+            }
+        })
+    }catch(error){}
+}
+async function deleteSection(id, table, callback) {
+    try {
+        await db.tx(async (t) => {
+            const deleteQuery = 'DELETE FROM sections WHERE id=$1'; // Utilizando consulta preparada
+            await t.none(deleteQuery, [id]); // Ejecutando la consulta DELETE
+
+            await t.none(`DROP TABLE ${table}`); // Eliminar la tabla
+            callback(null, { message: 'Sección eliminada exitosamente.' });
+        });
+    } catch (error) {
+        // Manejar el error, por ejemplo, lanzándolo nuevamente o registrándolo
+        console.error('Error al eliminar la sección:', error);
+        callback(error, null);
+    }
+}
+
     module.exports={
        dishesRequest,
        dishCreate,
@@ -137,5 +169,7 @@ async function updateSection(item,id,table,newTableName,callback){
        createSubsection,
        createSection,
        updateSubsection,
-       updateSection
+       updateSection,
+       deleteSection,
+       deleteSubsection
     };
